@@ -1,26 +1,129 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ——— design tokens ————————————————————————————————————————
+   Premium Dark: sidebar #070810 · workspace #0C0E17
+   accent indigo #7C5CFF, support: emerald #22D3A5, amber #F5A524, sky #38BDF8
+   Text alphas come from Tailwind's opacity modifier: text-ink/45 == rgba(231,234,242,.45) */
+@theme {
+  --color-void: #080910;
+  --color-canvas: #0c0e17;
+  --color-rail: #070810;
+  --color-ink: #e7eaf2;
+
+  --color-accent: #7c5cff;
+  --color-accent-soft: #bdb0ff;
+  --color-accent-strong: #c7bcff;
+  --color-accent-link: #a99bff;
+  --color-accent-link-hover: #cfc7ff;
+  --color-accent-from: #8b72ff;
+  --color-accent-to: #5b3ce0;
+
+  --color-emerald: #22d3a5;
+  --color-emerald-soft: #7fe9cb;
+  --color-amber: #f5a524;
+  --color-amber-soft: #f7c46c;
+  --color-sky: #38bdf8;
+  --color-rose-soft: #ff9da8;
+
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+
+  /* Breakpoint where the sidebar turns into a drawer — the `shell:` variant */
+  --breakpoint-shell: 900px;
+
+  --animate-glow: bglow 2.2s ease-in-out infinite;
+  --animate-bpulse: bpulse 2s ease-in-out infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes bglow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes bpulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@layer components {
+  /*
+   * Two Gov screens render a white sheet inside the dark console: the pack
+   * preview and the public-mirror browser mock. Rather than hard-coding a dark
+   * colour on every child, we re-point the ink and accent tokens for the
+   * subtree. Tailwind v4 resolves `text-ink/60` to
+   * `color-mix(in oklab, var(--color-ink) 60%, transparent)` at build time, so
+   * every utility inside inherits the paper palette with no markup changes.
+   */
+  .on-paper {
+    --color-ink: #14161f;
+    --color-accent-soft: #5b45c9;
+    --color-accent: #6b4fe0;
+
+    color: var(--color-ink);
+  }
+}
+
+@layer base {
+  /*
+   * The prototypes never reset line-height, so elements without their own
+   * `line-height` inherit `normal` (~1.2). Tailwind's preflight sets 1.5, which
+   * would change the height of nearly every element — restore source behaviour.
+   */
+  html {
+    line-height: normal;
+  }
+
+  body {
+    background: var(--color-void);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--color-accent-link);
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+
+  a:hover {
+    color: var(--color-accent-link-hover);
+  }
+
+  ::selection {
+    background: --alpha(var(--color-accent) / 35%);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0b0d15;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: --alpha(#fff / 12%);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: --alpha(#fff / 22%);
+    background-clip: content-box;
+  }
 }
