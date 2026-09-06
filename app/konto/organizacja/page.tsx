@@ -9,21 +9,25 @@ import { ChipList } from "@/components/ui/ChipList";
 import { Chip } from "@/components/ui/Chip";
 import { Note } from "@/components/ui/Note";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
 
-const PERM_GRID = "minmax(240px,1.6fr) repeat(5,minmax(110px,1fr))";
+/** One column per role, and the roles come from the API — five of them was the mock's count. */
+const permGrid = (roles: number) => `minmax(240px,1.6fr) repeat(${roles},minmax(110px,1fr))`;
 
 export default function OrganisationPage() {
-  const { data } = useOrganisation();
-  if (!data) return null;
+  const organisation = useOrganisation();
+  if (!organisation.data) return <ScreenState resource={organisation} />;
 
-  const { roles, permissions, members, activity, policies, invites } = data;
+  const { headline, teamNote, roles, permissions, members, activity, policies, invites } =
+    organisation.data;
+  const PERM_GRID = permGrid(roles.length);
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
       <PageHeader
         className="mb-5"
         titleSize="text-[31px]"
-        kicker="ORGANIZACJA · ENERPOL SA · 8 SEATÓW (6 ZAJĘTYCH)"
+        kicker={headline}
         title="Kto ma dostęp i do czego"
         aside={
           <div className="flex gap-[7px]">
@@ -33,11 +37,13 @@ export default function OrganisationPage() {
             >
               ZAPROŚ OSOBĘ
             </button>
+            {/* No price: nothing in this system knows one, and a number in a button is
+                a number somebody will quote back. */}
             <button
               type="button"
               className="cursor-pointer rounded-[10px] border border-white/20 px-[11px] py-[7px] text-[9.5px] tracking-[.07em]"
             >
-              DODAJ SEAT (180 ZŁ/MIES.)
+              ZMIEŃ LICZBĘ MIEJSC
             </button>
           </div>
         }
@@ -75,7 +81,7 @@ export default function OrganisationPage() {
 
       <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-6">
         <div>
-          <SectionRule title="Zespół" aside="DOMENA @ENERPOL.EXAMPLE · AUTO-DOŁĄCZANIE WŁ." />
+          <SectionRule title="Zespół" aside={teamNote} />
           <HairlineList>
             {members.map((member) => (
               <HairlineItem
@@ -104,7 +110,7 @@ export default function OrganisationPage() {
             </HairlineItem>
             {activity.map((entry) => (
               <HairlineItem
-                key={entry.when}
+                key={entry.id}
                 className="grid grid-cols-[96px_minmax(0,1fr)] items-baseline gap-[11px] px-[13px] py-[9px]"
               >
                 <div className="text-[9.5px] text-ink/50">{entry.when}</div>

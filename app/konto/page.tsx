@@ -6,28 +6,27 @@ import { SectionRule } from "@/components/ui/SectionRule";
 import { HairlineItem, HairlineList } from "@/components/ui/HairlineList";
 import { Chip } from "@/components/ui/Chip";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
+import { Note } from "@/components/ui/Note";
+import { useCommand } from "@/hooks/useCommand";
+import { endSession } from "@/lib/data/commands";
 import { cx } from "@/lib/cn";
 
 export default function LoginPage() {
-  const { data } = useLogin();
-  if (!data) return null;
+  const login = useLogin();
+  const { run, pending, error } = useCommand(login.refetch);
+  if (!login.data) return <ScreenState resource={login} />;
 
-  const { authMethods, operations, sessions, history } = data;
+  const { email, authMethods, operations, sessions, history } = login.data;
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
       <PageHeader
         className="mb-5"
         titleSize="text-[31px]"
-        kicker="KONTO · P. KACZMAREK · WŁAŚCICIEL"
+        kicker="KONTO · LOGOWANIE I SESJE"
         title="Jak wchodzisz i czym się potwierdzasz"
-        aside={
-          <>
-            p.kaczmarek@enerpol.example
-            <br />
-            ostatnie logowanie: 29 VII, 08:41 · Katowice
-          </>
-        }
+        aside={email}
       />
 
       <div className="grid grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-6">
@@ -54,6 +53,8 @@ export default function LoginPage() {
               </HairlineItem>
             ))}
           </HairlineList>
+
+          {error && <Note className="mt-2 text-[10.5px] text-accent-soft">{error}</Note>}
 
           <HairlineList className="mt-3">
             <HairlineItem className="bg-white/[.05] px-[13px] py-[9px] text-[9px] tracking-[.13em] text-ink/55">
@@ -84,7 +85,7 @@ export default function LoginPage() {
           <HairlineList>
             {sessions.map((session) => (
               <HairlineItem
-                key={session.device}
+                key={session.id}
                 className={cx(
                   "grid grid-cols-[minmax(0,1fr)_110px_86px] items-center gap-[11px] px-[13px] py-2.5",
                   session.isAlert && "bg-white/[.065]",
@@ -96,17 +97,32 @@ export default function LoginPage() {
                   <div className="text-[9.5px] text-ink/50">{session.meta}</div>
                 </div>
                 <div className="text-right text-[9.5px] text-ink/55">{session.when}</div>
-                <div
-                  className={cx(
-                    "cursor-pointer text-right text-[9.5px]",
-                    session.isAlert ? "text-accent-soft" : "text-ink/50",
-                  )}
-                >
-                  {session.action}
-                </div>
+                {/* No button on the session this request came on, and not because the
+                    API would refuse: it would end it, answer 200, and drop the reader a
+                    quarter of an hour later when the access token expired. Signing out
+                    of the tab you are in belongs to the sign-out button; this list is
+                    for the device you no longer recognise. Which row that is comes from
+                    the backend, off the `sid` claim in the caller's own token. */}
+                {session.isHighlighted ? (
+                  <div className="text-right text-[9.5px] text-ink/50">{session.action}</div>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={pending !== null}
+                    onClick={() => run(session.id, () => endSession(session.id))}
+                    className={cx(
+                      "cursor-pointer text-right text-[9.5px] disabled:opacity-40",
+                      session.isAlert ? "text-accent-soft" : "text-ink/50",
+                    )}
+                  >
+                    {pending === session.id ? "…" : session.action}
+                  </button>
+                )}
               </HairlineItem>
             ))}
           </HairlineList>
+
+          {error && <Note className="mt-2 text-[10.5px] text-accent-soft">{error}</Note>}
 
           <HairlineList className="mt-3">
             <HairlineItem className="bg-white/[.05] px-[13px] py-[9px] text-[9px] tracking-[.13em] text-ink/55">
@@ -114,7 +130,7 @@ export default function LoginPage() {
             </HairlineItem>
             {history.map((event) => (
               <HairlineItem
-                key={event.when}
+                key={event.id}
                 className="grid grid-cols-[96px_minmax(0,1fr)_92px] items-center gap-2.5 px-[13px] py-[9px]"
               >
                 <div className="text-[9.5px] text-ink/50">{event.when}</div>

@@ -13,6 +13,8 @@ const no: PlanCell = { kind: "no" };
 const text = (value: string): PlanCell => ({ kind: "text", text: value });
 
 export const login: Login = {
+  email: "p.kaczmarek@enerpol.example",
+
   authMethods: [
     {
       name: "Magic link na e-mail",
@@ -87,6 +89,7 @@ export const login: Login = {
 
   sessions: [
     {
+      id: "s-macbook",
       device: "MacBook Pro · Chrome 141",
       meta: "Katowice · 89.64.x.x · passkey",
       when: "ta sesja",
@@ -94,6 +97,7 @@ export const login: Login = {
       isHighlighted: true,
     },
     {
+      id: "s-iphone",
       device: "iPhone 16 · aplikacja",
       meta: "Katowice · sieć komórkowa · Face ID",
       when: "2 h temu",
@@ -101,6 +105,7 @@ export const login: Login = {
       isHighlighted: false,
     },
     {
+      id: "s-windows",
       device: "Windows 11 · Edge",
       meta: "Warszawa · 194.29.x.x · SSO Microsoft",
       when: "wczoraj 17:22",
@@ -108,6 +113,7 @@ export const login: Login = {
       isHighlighted: false,
     },
     {
+      id: "s-unknown",
       device: "Nieznane urządzenie · Firefox",
       meta: "Gdańsk · 5.173.x.x · magic link",
       when: "24 VII, 03:14",
@@ -119,30 +125,35 @@ export const login: Login = {
 
   history: [
     {
+      id: "e1",
       when: "29 VII 08:41",
       what: "Logowanie passkey — MacBook Pro, Katowice",
       tag: "OK",
       tone: "emerald",
     },
     {
+      id: "e2",
       when: "28 VII 17:22",
       what: "Logowanie SSO Microsoft — Windows, Warszawa",
       tag: "OK",
       tone: "emerald",
     },
     {
+      id: "e3",
       when: "24 VII 03:14",
       what: "Magic link z nowego urządzenia — Gdańsk, Firefox",
       tag: "ALERT",
       tone: "accent",
     },
     {
+      id: "e4",
       when: "24 VII 03:15",
       what: "Alert o nowym urządzeniu wysłany na e-mail i push",
       tag: "WYSŁANY",
       tone: "amber",
     },
     {
+      id: "e5",
       when: "21 VII 09:02",
       what: "Zmiana ustawień powiadomień przez użytkownika",
       tag: "ZMIANA",
@@ -152,6 +163,9 @@ export const login: Login = {
 };
 
 export const organisation: Organisation = {
+  headline: "ORGANIZACJA · ENERPOL SA · 6/8 MIEJSC",
+  teamNote: "DOMENA @ENERPOL.EXAMPLE · AUTO-DOŁĄCZANIE WŁ.",
+
   roles: [
     { name: "Właściciel", count: "1 osoba" },
     { name: "Admin", count: "1 osoba" },
@@ -242,19 +256,27 @@ export const organisation: Organisation = {
 
   activity: [
     {
+      id: "a1",
       when: "29 VII 09:12",
       what: "J. Ostrowska pobrała eksport XLSX widoku „Wpływ na nas” (18 pozycji).",
     },
     {
+      id: "a2",
       when: "29 VII 08:44",
       what: "P. Kaczmarek zmienił próg istotności reguły „Krytyczne: nasz PKD + region” z 0,80 na 0,85.",
     },
     {
+      id: "a3",
       when: "28 VII 16:30",
       what: "K. Sowa przypisała alert #4128 do J. Ostrowskiej z terminem 1 VIII.",
     },
-    { when: "28 VII 11:05", what: "M. Rudnicki dodał komentarz w wątku „taryfy energetyczne”." },
     {
+      id: "a5",
+      when: "28 VII 11:05",
+      what: "M. Rudnicki dodał komentarz w wątku „taryfy energetyczne”.",
+    },
+    {
+      id: "a4",
       when: "27 VII 14:20",
       what: "Zaproszenie dla d.kwiatkowska@kancelaria.example wysłane przez J. Ostrowską (rola: gość, wygasa po 14 dniach).",
     },
@@ -503,6 +525,16 @@ const channels = (pattern: (0 | 1 | string)[]): PlanCell[] =>
   pattern.map((value) => (value === 1 ? yes : value === 0 ? no : text(String(value))));
 
 export const notifications: Notifications = {
+  cadence: [
+    "godziny ciszy: 21:00–07:00 · nadpisanie tylko krytyczne",
+    "limit dzienny: 5 · deduplikacja 6 h",
+  ],
+
+  countsTitle: "CO BYŚ DOSTAŁ PRZY TYCH USTAWIENIACH · 7 DNI",
+
+  countsNote:
+    "118 pozycji zostałoby scalonych w 14 podsumowań zamiast wysłanych pojedynczo. Zawsze pokazujemy ten podgląd przed zapisaniem reguły.",
+
   columns: ["NATYCHMIAST", "GODZINNIE", "DZIENNIE", "TYGODNIOWO", "SMS", "WEBHOOK"],
 
   rows: [
@@ -748,6 +780,8 @@ export const onboarding: Onboarding = {
 };
 
 export const security: Security = {
+  activity: ["DPA podpisana 14 III 2026", "ostatni eksport danych konta: 2 VII 2026"],
+
   compliance: [
     {
       kicker: "RODO",
@@ -824,6 +858,7 @@ export const security: Security = {
   keys: [
     {
       name: "CRM — przetargi",
+      id: "k1",
       prefix: "bar_live_9c14…",
       scopes: "tenders:read, entities:read",
       rate: "600 / min",
@@ -833,6 +868,7 @@ export const security: Security = {
     },
     {
       name: "Hurtownia danych",
+      id: "k2",
       prefix: "bar_live_4a71…",
       scopes: "acts:read, diffs:read, bulk:read",
       rate: "300 / min",
@@ -842,6 +878,7 @@ export const security: Security = {
     },
     {
       name: "Integracja testowa",
+      id: "k3",
       prefix: "bar_test_1f08…",
       scopes: "wszystkie (sandbox)",
       rate: "60 / min",
@@ -851,6 +888,7 @@ export const security: Security = {
     },
     {
       name: "Klucz stary — do rotacji",
+      id: "k4",
       prefix: "bar_live_0b93…",
       scopes: "acts:read",
       rate: "300 / min",

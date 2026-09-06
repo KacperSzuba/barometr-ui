@@ -8,14 +8,19 @@ import { MatrixCell } from "@/components/ui/MatrixCell";
 import { Bar } from "@/components/ui/Bar";
 import { Chip } from "@/components/ui/Chip";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
 
-const NOTIFY_GRID = "minmax(220px,1.5fr) repeat(6,minmax(110px,1fr))";
+/** One column per channel, and the channels come from the API — six was the mock's count. */
+const notifyGrid = (channels: number) =>
+  `minmax(220px,1.5fr) repeat(${channels},minmax(110px,1fr))`;
 
 export default function NotificationsPage() {
-  const { data } = useNotifications();
-  if (!data) return null;
+  const notifications = useNotifications();
+  if (!notifications.data) return <ScreenState resource={notifications} />;
 
-  const { columns, rows, endpoints, counts, hygiene } = data;
+  const { cadence, columns, rows, endpoints, countsTitle, counts, countsNote, hygiene } =
+    notifications.data;
+  const NOTIFY_GRID = notifyGrid(columns.length);
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
@@ -24,17 +29,13 @@ export default function NotificationsPage() {
         titleSize="text-[31px]"
         kicker="POWIADOMIENIA"
         title="Co, gdzie i jak często"
-        aside={
-          <>
-            godziny ciszy: 21:00–07:00 · nadpisanie tylko krytyczne
-            <br />
-            limit dzienny: 5 · deduplikacja 6 h
-          </>
-        }
+        aside={cadence.map((line) => (
+          <div key={line}>{line}</div>
+        ))}
       />
 
       <div className="mb-6 overflow-x-auto border border-white/[.13]">
-        <div className="min-w-[1020px]">
+        <div className="min-w-[560px]">
           <div
             className="grid border-b border-white/[.13] bg-white/[.05]"
             style={{ gridTemplateColumns: NOTIFY_GRID }}
@@ -93,7 +94,7 @@ export default function NotificationsPage() {
         <div className="flex flex-col gap-3">
           <div className="rounded-[14px] border border-white/[.13] bg-white/[.035] px-[15px] py-3.5">
             <div className="mb-[9px] text-[9px] tracking-[.12em] text-accent-soft">
-              CO BYŚ DOSTAŁ PRZY TYCH USTAWIENIACH · 7 DNI
+              {countsTitle}
             </div>
             <div className="flex flex-col gap-[9px]">
               {counts.map((count) => (
@@ -108,8 +109,7 @@ export default function NotificationsPage() {
               ))}
             </div>
             <div className="mt-[11px] border-t border-dashed border-white/[.16] pt-[9px] text-[11.5px] leading-[1.55] text-pretty text-ink/70">
-              118 pozycji zostałoby scalonych w 14 podsumowań zamiast wysłanych pojedynczo. Zawsze
-              pokazujemy ten podgląd przed zapisaniem reguły.
+              {countsNote}
             </div>
           </div>
 

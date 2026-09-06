@@ -1,0 +1,64 @@
+# Every push verified, in a repository that until recently had nothing to verify.
+#
+# While every screen read a frozen fixture, the build was the only thing that could
+# break and a broken build is noticed on the first `npm run dev`. That stopped being
+# true: there is now a server layer holding tokens, route handlers that join several
+# backend reads into one screen, and three paths that write. A pull request nobody can
+# see fail is not a passing pull request — it is an unchecked one.
+name: ui
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+  pull_request:
+    paths-ignore: ["**.md"]
+
+# A second push to the same branch makes the first one's answer worthless, and a queue
+# of stale runs is how a pipeline stops being read.
+concurrency:
+  group: ui-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # Pinned rather than "latest": a major that arrives on its own is a build
+          # that changes without a commit. `@types/node` is on 26, so the runtime is
+          # kept on the current LTS deliberately rather than by accident.
+          node-version: "22"
+          cache: npm
+
+      # `ci` rather than `install`: it installs exactly the lockfile and fails when the
+      # lockfile has drifted from package.json, which is the whole reason to commit one.
+      - name: Install
+        run: npm ci
+
+      - name: Prettier
+        run: npx prettier --check .
+
+      # The type check, and it is not a formality here. `next build` runs TypeScript
+      # over the whole app, and that is what caught a mock missing fields the contract
+      # had gained — a failure no test in this repository would have found, because
+      # there are no tests in this repository yet.
+      - name: Build
+        run: npm run build
+
+      # `npm run lint` is deliberately absent, and this is the condition for adding it.
+      #
+      # It does not run at all: `eslint-config-next` pulls in `typescript-eslint`, which
+      # refuses to start against TypeScript 7, and `package.json` asks for `^7`. A step
+      # that always fails teaches everybody to stop reading a red pipeline, which costs
+      # more than the linting is worth. Add it when typescript-eslint supports TS 7, or
+      # when somebody decides to hold this project on TS 6 on purpose.

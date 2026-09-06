@@ -225,6 +225,8 @@ export const alerts: Alerts = {
 
   rules: [
     {
+      id: "r1",
+      settings: { enabled: true, stages: [], urgency: "normal", minimumSignificance: 0 },
       name: "Taryfy — zmiana treści aktu",
       scope: "akty + komisje",
       condition: "akt ∈ {412, 501} AND zmiana_wersji",
@@ -235,6 +237,8 @@ export const alerts: Alerts = {
       tone: "emerald",
     },
     {
+      id: "r2",
+      settings: { enabled: true, stages: [], urgency: "normal", minimumSignificance: 0 },
       name: "Krytyczne: nasz PKD + region",
       scope: "PKD 35.14 · Śląskie",
       condition: "pkd = 35.14 AND region = SLK AND istotność ≥ 0,85",
@@ -245,6 +249,8 @@ export const alerts: Alerts = {
       tone: "emerald",
     },
     {
+      id: "r3",
+      settings: { enabled: true, stages: [], urgency: "normal", minimumSignificance: 0 },
       name: "Konkurencja w konsultacjach",
       scope: "41 spółek + 3 izby",
       condition: "autor_uwagi ∈ lista_obserwowanych",
@@ -255,6 +261,8 @@ export const alerts: Alerts = {
       tone: "emerald",
     },
     {
+      id: "r4",
+      settings: { enabled: true, stages: [], urgency: "normal", minimumSignificance: 0 },
       name: "Przetargi powyżej 5 mln zł",
       scope: "eZamówienia + TED",
       condition: "wartość ≥ 5 mln AND cpv ∈ energia",
@@ -265,6 +273,8 @@ export const alerts: Alerts = {
       tone: "emerald",
     },
     {
+      id: "r5",
+      settings: { enabled: true, stages: [], urgency: "normal", minimumSignificance: 0 },
       name: "Anomalia nieobecności resortu",
       scope: "MKiŚ",
       condition: "brak_stanowiska > 7 dni AND pokrycie > 50 materiałów",
@@ -275,6 +285,8 @@ export const alerts: Alerts = {
       tone: "amber",
     },
     {
+      id: "r6",
+      settings: { enabled: true, stages: [], urgency: "normal", minimumSignificance: 0 },
       name: "Sesje rad — nasze gminy",
       scope: "6 gmin",
       condition: "uchwała ∈ {MPZP, opłaty} AND gmina ∈ lista",
@@ -391,6 +403,13 @@ export const alerts: Alerts = {
       cadence: "aktualizacja 4×/dzień",
     },
   ],
+
+  activity: ["wysłane w tym tygodniu: 41 powiadomień", "zduplikowane i scalone: 118"],
+
+  previewNote:
+    "Przy tych progach reguła wysłałaby 6 powiadomień w ciągu 7 dni, w tym jedno SMS-em. Trzy pozycje zostałyby scalone w jedno podsumowanie zamiast serii.",
+
+  quietHours: "GODZINY CISZY: 21:00–07:00 · NADPISANIE TYLKO DLA KRYTYCZNYCH",
 };
 
 export const analysis: Analysis = {

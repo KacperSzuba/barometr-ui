@@ -276,6 +276,10 @@ export interface Correction {
 }
 
 export interface OpenData {
+  /** Licence, attribution and the rate actually being enforced — read, not written down. */
+  terms: string[];
+  /** Why the corrections list is empty, when it is. */
+  correctionsNote: string;
   exports: ExportChannel[];
   embedCode: string;
   widgetKinds: string[];
@@ -327,7 +331,25 @@ export interface Impact {
 
 /* ——— Pro · alerts and rules ——————————————————————————————————————————— */
 
+/**
+ * A rule as the engine holds it, beside the sentences the screen shows.
+ *
+ * Carried on every row because the backend states a rule whole rather than patching it:
+ * a change that sent only `enabled` would reset what the rule watches to "every stage,
+ * normal urgency, no floor" and silently widen one somebody had narrowed on purpose.
+ */
+export interface AlertRuleSettings {
+  enabled: boolean;
+  stages: string[];
+  urgency: string;
+  minimumSignificance: number;
+}
+
 export interface AlertRule {
+  /** Two rules can watch the same profile, so the name cannot key the row. */
+  id: string;
+  /** What a change has to send back. See [AlertRuleSettings]. */
+  settings: AlertRuleSettings;
   name: string;
   scope: string;
   condition: string;
@@ -370,6 +392,12 @@ export interface Alerts {
   sentence: string;
   preview: AlertPreview[];
   channels: NotificationChannel[];
+  /** What has actually gone out lately — the header's own numbers, not a guess. */
+  activity: string[];
+  /** Why the preview holds what it holds, including what was withheld and on what ground. */
+  previewNote: string;
+  /** The window in which nothing but a critical rule speaks. */
+  quietHours: string;
 }
 
 /* ——— Pro · analysis and archive ——————————————————————————————————————— */
@@ -814,6 +842,8 @@ export interface SettingRow {
 }
 
 export interface Session {
+  /** Identity, not decoration: it keys the list and names the session an action ends. */
+  id: string;
   device: string;
   meta: string;
   when: string;
@@ -825,6 +855,8 @@ export interface Session {
 }
 
 export interface LoginEvent {
+  /** Two events can share a minute, so the label they are shown with cannot key them. */
+  id: string;
   when: string;
   what: string;
   tag: string;
@@ -839,6 +871,8 @@ export interface AccountOperation {
 }
 
 export interface Login {
+  /** Whose account this is. The screen said one address and listed another's sessions. */
+  email: string;
   authMethods: SettingRow[];
   operations: AccountOperation[];
   sessions: Session[];
@@ -868,11 +902,17 @@ export interface Member {
 }
 
 export interface ActivityEntry {
+  /** Two entries can share a minute, so the label they are shown with cannot key them. */
+  id: string;
   when: string;
   what: string;
 }
 
 export interface Organisation {
+  /** Which organisation, and how full it is — the header's own line. */
+  headline: string;
+  /** What governs joining this team. Read, not written into the page. */
+  teamNote: string;
   roles: Role[];
   permissions: Permission[];
   members: Member[];
@@ -950,6 +990,12 @@ export interface ChannelCount {
 }
 
 export interface Notifications {
+  /** Window and quiet hours, read from the account's own cadence. */
+  cadence: string[];
+  /** What the counts below are counted over. */
+  countsTitle: string;
+  /** What the windows did to the volume — counted, not estimated. */
+  countsNote: string;
   columns: string[];
   rows: NotificationRow[];
   endpoints: Endpoint[];
@@ -990,6 +1036,8 @@ export interface ComplianceBlock {
 }
 
 export interface ApiKey {
+  /** What a revocation names. Not shown — the row shows its tail beside the name. */
+  id: string;
   name: string;
   prefix: string;
   scopes: string;
@@ -1012,6 +1060,8 @@ export interface DevTool {
 }
 
 export interface Security {
+  /** What the header states about this account — read, not written into the page. */
+  activity: string[];
   compliance: ComplianceBlock[];
   keyColumns: string[];
   keys: ApiKey[];

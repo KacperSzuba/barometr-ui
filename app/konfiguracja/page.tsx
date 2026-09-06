@@ -11,16 +11,18 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { FieldRow } from "@/components/ui/FieldRow";
 import { Chip } from "@/components/ui/Chip";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
+import { pluralPl } from "@/lib/format";
 
 const MUTE_GRID = "110px minmax(220px,1.5fr) minmax(200px,1.2fr) 120px 110px";
 
 export default function InterestProfilePage() {
   const [profile, setProfile] = useState<string | null>(null);
   const { valueOf, select } = useFieldSelections();
-  const { data } = useInterestProfile();
-  if (!data) return null;
+  const interestProfile = useInterestProfile(profile ?? undefined);
+  if (!interestProfile.data) return <ScreenState resource={interestProfile} />;
 
-  const { profiles, fields, sentence, watched, muteColumns, mutes } = data;
+  const { profiles, fields, sentence, watched, muteColumns, mutes } = interestProfile.data;
   const activeProfile = profile ?? profiles[0];
 
   return (
@@ -28,7 +30,7 @@ export default function InterestProfilePage() {
       <PageHeader
         className="mb-5"
         titleSize="text-[31px]"
-        kicker="PROFIL ZAINTERESOWAŃ · 2 PROFILE W KONCIE"
+        kicker={`PROFIL ZAINTERESOWAŃ · ${pluralPl(profiles.length, "PROFIL", "PROFILE", "PROFILI")} W KONCIE`}
         title="Co obserwujemy i gdzie"
         aside={
           <SegmentedControl
@@ -42,7 +44,7 @@ export default function InterestProfilePage() {
 
       <div className="mb-6 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6">
         <div>
-          <SectionRule title="Branża i zakres geograficzny" />
+          <SectionRule title="Co ten profil znaczy" />
           <div className="rounded-[14px] border border-white/[.13] bg-white/[.03] px-4 py-[15px]">
             <div className="flex flex-col gap-[13px]">
               {fields.map((field) => (
@@ -91,7 +93,10 @@ export default function InterestProfilePage() {
         </div>
       </div>
 
-      <SectionRule title="Wykluczenia i wyciszenia" aside="NA CZAS OKREŚLONY · WYGASAJĄ SAME" />
+      {/* No "wygasają same": an exclusion is part of the profile and lives until somebody
+          removes it. The engine has no timer on one, and a header promising otherwise
+          would be the screen contradicting the row underneath it. */}
+      <SectionRule title="Wykluczenia" aside="CZĘŚĆ PROFILU · OBOWIĄZUJĄ DO USUNIĘCIA" />
       <DataTable columns={muteColumns} grid={MUTE_GRID} minWidth={820}>
         {mutes.map((mute) => (
           <DataRow key={mute.what} grid={MUTE_GRID} align="center">
