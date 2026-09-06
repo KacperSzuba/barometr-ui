@@ -89,6 +89,13 @@ async function get<T>(path: string, params?: Record<string, string>): Promise<T>
     throw new Error("Sesja wygasła");
   }
 
+  // A refusal the reader can act on carries its own sentence; anything else gets the
+  // status, which is all a reader could do anything with.
+  if (response.status === 403) {
+    const refusal = await response.json().catch(() => null);
+    throw new Error(refusal?.error ?? `Barometr API 403 przy ${path}`);
+  }
+
   if (!response.ok) {
     throw new Error(`Barometr API ${response.status} przy ${path}`);
   }

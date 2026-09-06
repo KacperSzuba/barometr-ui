@@ -163,6 +163,9 @@ export const login: Login = {
 };
 
 export const organisation: Organisation = {
+  headline: "ORGANIZACJA · ENERPOL SA · 6/8 MIEJSC",
+  teamNote: "DOMENA @ENERPOL.EXAMPLE · AUTO-DOŁĄCZANIE WŁ.",
+
   roles: [
     { name: "Właściciel", count: "1 osoba" },
     { name: "Admin", count: "1 osoba" },
@@ -253,19 +256,27 @@ export const organisation: Organisation = {
 
   activity: [
     {
+      id: "a1",
       when: "29 VII 09:12",
       what: "J. Ostrowska pobrała eksport XLSX widoku „Wpływ na nas” (18 pozycji).",
     },
     {
+      id: "a2",
       when: "29 VII 08:44",
       what: "P. Kaczmarek zmienił próg istotności reguły „Krytyczne: nasz PKD + region” z 0,80 na 0,85.",
     },
     {
+      id: "a3",
       when: "28 VII 16:30",
       what: "K. Sowa przypisała alert #4128 do J. Ostrowskiej z terminem 1 VIII.",
     },
-    { when: "28 VII 11:05", what: "M. Rudnicki dodał komentarz w wątku „taryfy energetyczne”." },
     {
+      id: "a5",
+      when: "28 VII 11:05",
+      what: "M. Rudnicki dodał komentarz w wątku „taryfy energetyczne”.",
+    },
+    {
+      id: "a4",
       when: "27 VII 14:20",
       what: "Zaproszenie dla d.kwiatkowska@kancelaria.example wysłane przez J. Ostrowską (rola: gość, wygasa po 14 dniach).",
     },

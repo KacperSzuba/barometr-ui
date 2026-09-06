@@ -882,11 +882,17 @@ export interface Member {
 }
 
 export interface ActivityEntry {
+  /** Two entries can share a minute, so the label they are shown with cannot key them. */
+  id: string;
   when: string;
   what: string;
 }
 
 export interface Organisation {
+  /** Which organisation, and how full it is — the header's own line. */
+  headline: string;
+  /** What governs joining this team. Read, not written into the page. */
+  teamNote: string;
   roles: Role[];
   permissions: Permission[];
   members: Member[];

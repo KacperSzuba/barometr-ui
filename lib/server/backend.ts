@@ -22,6 +22,23 @@ export class NotSignedIn extends Error {
   }
 }
 
+/**
+ * Thrown when the caller's workspace insists on a second factor they have not set up.
+ *
+ * Not an authorisation failure to route around. The backend signs such a person in
+ * deliberately — refusing the sign-in outright would leave them, including the
+ * administrator who has just turned the policy on, with no way to comply — and then
+ * lets them reach the enrolment routes and nothing else. Every screen therefore has to
+ * be able to say so, and a screen that reported it as a fault would send somebody to
+ * look for an outage that is a policy.
+ */
+export class SecondFactorRequired extends Error {
+  constructor() {
+    super("Twoja organizacja wymaga drugiego składnika. Skonfiguruj go, żeby wejść dalej.");
+    this.name = "SecondFactorRequired";
+  }
+}
+
 /** Thrown when the backend answered, and answered with a failure. */
 export class BackendError extends Error {
   constructor(
@@ -118,6 +135,18 @@ function get(path: string, accessToken: string): Promise<Response> {
 }
 
 async function body<T>(response: Response, path: string): Promise<T> {
+  if (response.status === 403 && (await isEnrolmentGate(response)))
+    throw new SecondFactorRequired();
   if (!response.ok) throw new BackendError(response.status, path);
   return (await response.json()) as T;
+}
+
+/**
+ * The backend distinguishes this refusal from every other by its code, which is the
+ * only reason it can be told apart here: a bare `403` is "not yours to read", and this
+ * one is "not yet, and here is what to do about it".
+ */
+async function isEnrolmentGate(response: Response): Promise<boolean> {
+  const refusal = await response.text().catch(() => "");
+  return refusal.includes("two_factor_setup_required");
 }
