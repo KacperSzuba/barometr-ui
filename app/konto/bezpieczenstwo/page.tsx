@@ -15,7 +15,7 @@ export default function SecurityPage() {
   const { data } = useSecurity();
   if (!data) return null;
 
-  const { compliance, keyColumns, keys, curlSample, webhooks, devTools } = data;
+  const { activity, compliance, keyColumns, keys, curlSample, webhooks, devTools } = data;
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
@@ -24,13 +24,9 @@ export default function SecurityPage() {
         titleSize="text-[31px]"
         kicker="BEZPIECZEŃSTWO, ZGODNOŚĆ, API"
         title="Czym się da nas sprawdzić i jak nas podłączyć"
-        aside={
-          <>
-            DPA podpisana 14 III 2026
-            <br />
-            ostatni eksport danych konta: 2 VII 2026
-          </>
-        }
+        aside={activity.map((line) => (
+          <div key={line}>{line}</div>
+        ))}
       />
 
       <HairlineList columns="repeat(auto-fit,minmax(300px,1fr))" className="mb-[26px]">
@@ -58,7 +54,7 @@ export default function SecurityPage() {
           />
           <DataTable columns={keyColumns} grid={KEY_GRID} minWidth={640}>
             {keys.map((key) => (
-              <DataRow key={key.prefix} grid={KEY_GRID} align="center">
+              <DataRow key={key.name} grid={KEY_GRID} align="center">
                 <div className="min-w-0 px-3 py-[9px]">
                   <div className="text-[11.5px]">{key.name}</div>
                   <div className="mt-0.5 text-[9.5px] text-ink/45">{key.prefix}</div>

@@ -759,6 +759,8 @@ export const onboarding: Onboarding = {
 };
 
 export const security: Security = {
+  activity: ["DPA podpisana 14 III 2026", "ostatni eksport danych konta: 2 VII 2026"],
+
   compliance: [
     {
       kicker: "RODO",

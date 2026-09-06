@@ -1026,6 +1026,8 @@ export interface DevTool {
 }
 
 export interface Security {
+  /** What the header states about this account — read, not written into the page. */
+  activity: string[];
   compliance: ComplianceBlock[];
   keyColumns: string[];
   keys: ApiKey[];
