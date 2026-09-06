@@ -525,6 +525,16 @@ const channels = (pattern: (0 | 1 | string)[]): PlanCell[] =>
   pattern.map((value) => (value === 1 ? yes : value === 0 ? no : text(String(value))));
 
 export const notifications: Notifications = {
+  cadence: [
+    "godziny ciszy: 21:00–07:00 · nadpisanie tylko krytyczne",
+    "limit dzienny: 5 · deduplikacja 6 h",
+  ],
+
+  countsTitle: "CO BYŚ DOSTAŁ PRZY TYCH USTAWIENIACH · 7 DNI",
+
+  countsNote:
+    "118 pozycji zostałoby scalonych w 14 podsumowań zamiast wysłanych pojedynczo. Zawsze pokazujemy ten podgląd przed zapisaniem reguły.",
+
   columns: ["NATYCHMIAST", "GODZINNIE", "DZIENNIE", "TYGODNIOWO", "SMS", "WEBHOOK"],
 
   rows: [

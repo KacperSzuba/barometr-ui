@@ -990,6 +990,12 @@ export interface ChannelCount {
 }
 
 export interface Notifications {
+  /** Window and quiet hours, read from the account's own cadence. */
+  cadence: string[];
+  /** What the counts below are counted over. */
+  countsTitle: string;
+  /** What the windows did to the volume — counted, not estimated. */
+  countsNote: string;
   columns: string[];
   rows: NotificationRow[];
   endpoints: Endpoint[];
