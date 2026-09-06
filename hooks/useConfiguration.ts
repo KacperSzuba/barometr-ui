@@ -3,9 +3,14 @@
 import { source } from "@/lib/data/source";
 import { useResource } from "./useResource";
 
-/** Industry and geography scope, watchlist, mutes. */
-export function useInterestProfile() {
-  return useResource(() => source.getInterestProfile());
+/**
+ * One profile's watchlist and exclusions.
+ *
+ * The name doubles as the read key, so picking another profile in the switcher re-reads
+ * rather than relabelling what is already on screen.
+ */
+export function useInterestProfile(profile?: string) {
+  return useResource(() => source.getInterestProfile(profile), profile);
 }
 
 /** Sensitivity, relevance threshold with an impact preview, conditional rules. */

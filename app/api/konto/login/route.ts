@@ -13,9 +13,8 @@
  * "AKTYWNA" would be a screen describing a product rather than an account, so they are
  * absent until something implements them.
  */
-import { NextResponse } from "next/server";
-import { NotSignedIn, readFromBackend } from "@/lib/server/backend";
-import { writeSession, type TokenPair } from "@/lib/server/session";
+import { readFromBackend } from "@/lib/server/backend";
+import { jsonForScreen, signedOutOr } from "@/lib/server/respond";
 import type { Login, LoginEvent, Session, SettingRow, Tone } from "@/lib/data/types";
 
 interface Account {
@@ -71,20 +70,9 @@ export async function GET() {
       history: history.data.map(describeEvent),
     };
 
-    const response = NextResponse.json(login);
-
-    // Four reads, and any of them may have renewed the token. The last one wins, which
-    // is correct: rotation makes every earlier token in the chain spent already.
-    const renewed = [account, sessions, factor, history]
-      .map((read) => read.tokens)
-      .filter((tokens): tokens is TokenPair => tokens !== undefined);
-
-    return renewed.length > 0 ? writeSession(response, renewed[renewed.length - 1]) : response;
+    return jsonForScreen(login, [account, sessions, factor, history]);
   } catch (cause) {
-    if (cause instanceof NotSignedIn) {
-      return NextResponse.json({ error: cause.message }, { status: 401 });
-    }
-    throw cause;
+    return signedOutOr(cause);
   }
 }
 

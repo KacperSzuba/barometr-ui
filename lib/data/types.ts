@@ -328,6 +328,8 @@ export interface Impact {
 /* ——— Pro · alerts and rules ——————————————————————————————————————————— */
 
 export interface AlertRule {
+  /** Two rules can watch the same profile, so the name cannot key the row. */
+  id: string;
   name: string;
   scope: string;
   condition: string;
@@ -370,6 +372,12 @@ export interface Alerts {
   sentence: string;
   preview: AlertPreview[];
   channels: NotificationChannel[];
+  /** What has actually gone out lately — the header's own numbers, not a guess. */
+  activity: string[];
+  /** Why the preview holds what it holds, including what was withheld and on what ground. */
+  previewNote: string;
+  /** The window in which nothing but a critical rule speaks. */
+  quietHours: string;
 }
 
 /* ——— Pro · analysis and archive ——————————————————————————————————————— */

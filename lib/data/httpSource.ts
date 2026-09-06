@@ -133,7 +133,8 @@ export const httpSource: BarometrSource = {
   getOnboarding: () => get<Onboarding>("/konto/onboarding"),
   getSecurity: () => get<Security>("/konto/security"),
 
-  getInterestProfile: () => get<InterestProfile>("/konfiguracja/profile"),
+  getInterestProfile: (profile?: string) =>
+    get<InterestProfile>("/konfiguracja/profile", profile ? { profil: profile } : undefined),
   getSignalSettings: () => get<SignalSettings>("/konfiguracja/signal"),
   getPresentation: () => get<Presentation>("/konfiguracja/presentation"),
   getSources: () => get<Sources>("/konfiguracja/sources"),

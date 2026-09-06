@@ -97,7 +97,12 @@ export interface BarometrSource {
   getSecurity(): Awaitable<Security>;
 
   /* Configuration */
-  getInterestProfile(): Awaitable<InterestProfile>;
+  /**
+   * One profile out of however many the account has. Named rather than indexed, because
+   * the name is what the reader picked in the switcher and what survives a profile being
+   * added or deleted between two reads. Absent means the first one.
+   */
+  getInterestProfile(profile?: string): Awaitable<InterestProfile>;
   getSignalSettings(): Awaitable<SignalSettings>;
   getPresentation(): Awaitable<Presentation>;
   getSources(): Awaitable<Sources>;
