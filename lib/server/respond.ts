@@ -8,7 +8,7 @@
  * is remembered once.
  */
 import { NextResponse } from "next/server";
-import { NotSignedIn, SecondFactorRequired } from "./backend";
+import { BackendUnreachable, NotSignedIn, SecondFactorRequired } from "./backend";
 import { writeSession, type TokenPair } from "./session";
 
 interface Renewable {
@@ -28,15 +28,19 @@ export function jsonForScreen<T>(payload: T, reads: Renewable[]): NextResponse {
 }
 
 /**
- * Two failures a screen route answers rather than throws, because neither is a fault.
+ * The failures a screen route answers rather than throws, because each is something a
+ * reader can be told and, in two of the three cases, act on.
  *
  * A gone session becomes a `401` the client turns into the sign-in form. A workspace
  * that insists on a second factor becomes a `403` carrying the reason, because the
- * reader is signed in perfectly well and there is something they can do about it.
+ * reader is signed in perfectly well and there is something they can do about it. A
+ * backend that is not answering becomes a `503` saying so — "Barometr API 500" names
+ * this application when the fault is one layer further in.
+ *
  * Anything else is a fault, and a fault that returned `200` with half a screen would be
  * worse than a stack trace.
  */
-export function signedOutOr(cause: unknown): NextResponse {
+export function readableFailure(cause: unknown): NextResponse {
   if (cause instanceof NotSignedIn) {
     return NextResponse.json({ error: cause.message }, { status: 401 });
   }
@@ -46,6 +50,10 @@ export function signedOutOr(cause: unknown): NextResponse {
       { error: cause.message, code: "second_factor_required" },
       { status: 403 },
     );
+  }
+
+  if (cause instanceof BackendUnreachable) {
+    return NextResponse.json({ error: cause.message }, { status: 503 });
   }
 
   throw cause;

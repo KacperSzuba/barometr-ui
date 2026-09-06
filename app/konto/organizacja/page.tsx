@@ -9,15 +9,17 @@ import { ChipList } from "@/components/ui/ChipList";
 import { Chip } from "@/components/ui/Chip";
 import { Note } from "@/components/ui/Note";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
 
 /** One column per role, and the roles come from the API — five of them was the mock's count. */
 const permGrid = (roles: number) => `minmax(240px,1.6fr) repeat(${roles},minmax(110px,1fr))`;
 
 export default function OrganisationPage() {
-  const { data } = useOrganisation();
-  if (!data) return null;
+  const organisation = useOrganisation();
+  if (!organisation.data) return <ScreenState resource={organisation} />;
 
-  const { headline, teamNote, roles, permissions, members, activity, policies, invites } = data;
+  const { headline, teamNote, roles, permissions, members, activity, policies, invites } =
+    organisation.data;
   const PERM_GRID = permGrid(roles.length);
 
   return (

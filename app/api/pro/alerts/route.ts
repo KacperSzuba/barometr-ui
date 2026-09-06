@@ -12,7 +12,7 @@
  * a rule table listing `01a0…-59cc` where a name belongs is a table nobody can check.
  */
 import { readFromBackend } from "@/lib/server/backend";
-import { jsonForScreen, signedOutOr } from "@/lib/server/respond";
+import { jsonForScreen, readableFailure } from "@/lib/server/respond";
 import { pluralPl } from "@/lib/format";
 import type {
   AlertPreview,
@@ -113,7 +113,7 @@ export async function GET() {
 
     return jsonForScreen(alerts, [rules, profiles, preference, sent, withheld]);
   } catch (cause) {
-    return signedOutOr(cause);
+    return readableFailure(cause);
   }
 }
 
@@ -127,6 +127,12 @@ function describeRule(
 
   return {
     id: rule.id,
+    settings: {
+      enabled: rule.enabled,
+      stages: rule.stages,
+      urgency: rule.urgency,
+      minimumSignificance: rule.minimumSignificance,
+    },
     name: profile?.name ?? "Profil spoza konta",
     // A rule points at a version of a profile, and an alert raised last week was
     // decided by what that profile said then. Naming the version is what makes the

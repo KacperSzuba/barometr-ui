@@ -8,14 +8,19 @@ import { DataRow, DataTable } from "@/components/ui/DataTable";
 import { ChipList } from "@/components/ui/ChipList";
 import { Chip } from "@/components/ui/Chip";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
+import { Note } from "@/components/ui/Note";
+import { useCommand } from "@/hooks/useCommand";
+import { revokeApiKey } from "@/lib/data/commands";
 
 const KEY_GRID = "minmax(150px,1.2fr) minmax(150px,1.3fr) 110px 100px 90px";
 
 export default function SecurityPage() {
-  const { data } = useSecurity();
-  if (!data) return null;
+  const security = useSecurity();
+  const { run, pending, error } = useCommand(security.refetch);
+  if (!security.data) return <ScreenState resource={security} />;
 
-  const { activity, compliance, keyColumns, keys, curlSample, webhooks, devTools } = data;
+  const { activity, compliance, keyColumns, keys, curlSample, webhooks, devTools } = security.data;
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
@@ -64,12 +69,30 @@ export default function SecurityPage() {
                 </div>
                 <div className="px-3 py-[9px] text-[10px] text-ink/60">{key.rate}</div>
                 <div className="px-3 py-[9px] text-[10px] text-ink/60">{key.used}</div>
+                {/* Revoking is irreversible and there is no route that shows a key
+                    again, so the row stays where it is with a different chip rather
+                    than disappearing — a key that was used and then revoked is a fact
+                    about this account. */}
                 <div className="px-3 py-[9px]">
-                  <Chip tone={key.tone}>{key.env}</Chip>
+                  {key.env === "AKTYWNY" ? (
+                    <button
+                      type="button"
+                      disabled={pending !== null}
+                      onClick={() => run(key.id, () => revokeApiKey(key.id))}
+                      className="cursor-pointer disabled:opacity-40"
+                      title="Odwołaj klucz — nieodwracalne"
+                    >
+                      <Chip tone={key.tone}>{pending === key.id ? "…" : "ODWOŁAJ"}</Chip>
+                    </button>
+                  ) : (
+                    <Chip tone={key.tone}>{key.env}</Chip>
+                  )}
                 </div>
               </DataRow>
             ))}
           </DataTable>
+
+          {error && <Note className="mt-2 text-[10.5px] text-accent-soft">{error}</Note>}
 
           <pre className="m-0 mt-3 overflow-x-auto rounded-[14px] border border-white/[.13] bg-white/[.05] px-[15px] py-[13px] text-[10.5px] leading-[1.8] whitespace-pre-line text-ink">
             {curlSample}

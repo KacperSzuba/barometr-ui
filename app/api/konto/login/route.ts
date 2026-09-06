@@ -14,7 +14,7 @@
  * absent until something implements them.
  */
 import { readFromBackend } from "@/lib/server/backend";
-import { jsonForScreen, signedOutOr } from "@/lib/server/respond";
+import { jsonForScreen, readableFailure } from "@/lib/server/respond";
 import type { Login, LoginEvent, Session, SettingRow, Tone } from "@/lib/data/types";
 
 interface Account {
@@ -72,7 +72,7 @@ export async function GET() {
 
     return jsonForScreen(login, [account, sessions, factor, history]);
   } catch (cause) {
-    return signedOutOr(cause);
+    return readableFailure(cause);
   }
 }
 

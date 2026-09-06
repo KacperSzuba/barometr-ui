@@ -11,6 +11,7 @@ import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { FieldRow } from "@/components/ui/FieldRow";
 import { Chip } from "@/components/ui/Chip";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
 import { pluralPl } from "@/lib/format";
 
 const MUTE_GRID = "110px minmax(220px,1.5fr) minmax(200px,1.2fr) 120px 110px";
@@ -18,10 +19,10 @@ const MUTE_GRID = "110px minmax(220px,1.5fr) minmax(200px,1.2fr) 120px 110px";
 export default function InterestProfilePage() {
   const [profile, setProfile] = useState<string | null>(null);
   const { valueOf, select } = useFieldSelections();
-  const { data } = useInterestProfile(profile ?? undefined);
-  if (!data) return null;
+  const interestProfile = useInterestProfile(profile ?? undefined);
+  if (!interestProfile.data) return <ScreenState resource={interestProfile} />;
 
-  const { profiles, fields, sentence, watched, muteColumns, mutes } = data;
+  const { profiles, fields, sentence, watched, muteColumns, mutes } = interestProfile.data;
   const activeProfile = profile ?? profiles[0];
 
   return (

@@ -590,6 +590,11 @@ export const people: People = {
 };
 
 export const openData: OpenData = {
+  terms: ["licencja: CC BY 4.0 · atrybucja wymagana", "limit darmowy: 1 000 zapytań / mies."],
+
+  correctionsNote:
+    "Każda korekta zostaje w rejestrze na stałe. Nie usuwamy wpisów, nie edytujemy historii — poprawiamy i opisujemy.",
+
   exports: [
     {
       kind: "CSV",

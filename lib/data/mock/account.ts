@@ -848,6 +848,7 @@ export const security: Security = {
   keys: [
     {
       name: "CRM — przetargi",
+      id: "k1",
       prefix: "bar_live_9c14…",
       scopes: "tenders:read, entities:read",
       rate: "600 / min",
@@ -857,6 +858,7 @@ export const security: Security = {
     },
     {
       name: "Hurtownia danych",
+      id: "k2",
       prefix: "bar_live_4a71…",
       scopes: "acts:read, diffs:read, bulk:read",
       rate: "300 / min",
@@ -866,6 +868,7 @@ export const security: Security = {
     },
     {
       name: "Integracja testowa",
+      id: "k3",
       prefix: "bar_test_1f08…",
       scopes: "wszystkie (sandbox)",
       rate: "60 / min",
@@ -875,6 +878,7 @@ export const security: Security = {
     },
     {
       name: "Klucz stary — do rotacji",
+      id: "k4",
       prefix: "bar_live_0b93…",
       scopes: "acts:read",
       rate: "300 / min",

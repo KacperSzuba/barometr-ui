@@ -39,6 +39,22 @@ export class SecondFactorRequired extends Error {
   }
 }
 
+/**
+ * Thrown when the backend did not answer at all — refused connection, DNS, timeout.
+ *
+ * Separate from [BackendError] because the two are different news. A `409` is this
+ * request being wrong; nothing coming back is the service being down, which is not
+ * something the reader did and not something retrying the same button will fix within
+ * the next second.
+ */
+export class BackendUnreachable extends Error {
+  constructor(cause: unknown) {
+    super("Backend nie odpowiada. Sprawdź, czy usługa działa, i spróbuj ponownie.");
+    this.name = "BackendUnreachable";
+    this.cause = cause;
+  }
+}
+
 /** Thrown when the backend answered, and answered with a failure. */
 export class BackendError extends Error {
   constructor(
@@ -55,13 +71,20 @@ export function backendUrl(path: string): string {
 }
 
 /** A call that carries no session: signing in, refreshing, signing out. */
-export function callBackend(path: string, init: RequestInit): Promise<Response> {
-  return fetch(backendUrl(path), {
-    ...init,
-    headers: { "content-type": "application/json", accept: "application/json", ...init.headers },
-    // The backend is the source of truth and every one of these reads is per-reader.
-    cache: "no-store",
-  });
+export async function callBackend(path: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(backendUrl(path), {
+      ...init,
+      headers: { "content-type": "application/json", accept: "application/json", ...init.headers },
+      // The backend is the source of truth and every one of these reads is per-reader.
+      cache: "no-store",
+    });
+  } catch (cause) {
+    // `fetch` rejects only when there was no HTTP conversation at all. Letting that
+    // through as-is reaches the reader as a `500` with a path in it, which describes
+    // this application rather than what is wrong with it.
+    throw new BackendUnreachable(cause);
+  }
 }
 
 /**
@@ -108,6 +131,43 @@ export async function readFromBackend<T>(path: string): Promise<Read<T>> {
 }
 
 /**
+ * Sends a change, renewing the token once if the access token has expired.
+ *
+ * The same shape as [readFromBackend] and for the same reason — a fifteen-minute access
+ * token expires under a reader who has had a screen open for an afternoon, and the
+ * button they finally press must not fail because of it.
+ *
+ * What differs is that this one is not safe to repeat blindly. The retry happens only
+ * on a `401`, which the backend returns *before* the handler runs, so nothing has been
+ * changed yet; every other failure is returned to the caller rather than tried again.
+ */
+export async function sendToBackend(
+  path: string,
+  method: "POST" | "PUT" | "DELETE",
+  payload?: unknown,
+): Promise<Read<void>> {
+  const jar = await cookies();
+  const access = jar.get(ACCESS_COOKIE)?.value;
+  const refresh = jar.get(REFRESH_COOKIE)?.value;
+
+  if (!access && !refresh) throw new NotSignedIn();
+
+  if (access) {
+    const response = await send(path, method, access, payload);
+    if (response.status !== 401) return { data: await nothing(response, path) };
+  }
+
+  if (!refresh) throw new NotSignedIn();
+
+  const renewed = await refreshWith(refresh);
+  const response = await send(path, method, renewed.accessToken, payload);
+
+  if (response.status === 401) throw new NotSignedIn();
+
+  return { data: await nothing(response, path), tokens: renewed };
+}
+
+/**
  * What a read produced, and — when the token had to be renewed to get it — the pair the
  * caller must write back.
  */
@@ -125,6 +185,31 @@ export async function refreshWith(refreshToken: string): Promise<TokenPair> {
   if (!response.ok) throw new NotSignedIn();
 
   return (await response.json()) as TokenPair;
+}
+
+function send(
+  path: string,
+  method: string,
+  accessToken: string,
+  payload: unknown,
+): Promise<Response> {
+  return callBackend(path, {
+    method,
+    headers: { authorization: `Bearer ${accessToken}` },
+    // `undefined` rather than `"null"`: a DELETE with a body is a request some proxies
+    // and servers are entitled to refuse.
+    body: payload === undefined ? undefined : JSON.stringify(payload),
+  });
+}
+
+/**
+ * A change that succeeded says so with a status and usually no body at all, so there is
+ * nothing to parse — only a failure to raise.
+ */
+async function nothing(response: Response, path: string): Promise<void> {
+  if (response.status === 403 && (await isEnrolmentGate(response)))
+    throw new SecondFactorRequired();
+  if (!response.ok) throw new BackendError(response.status, path);
 }
 
 function get(path: string, accessToken: string): Promise<Response> {

@@ -121,11 +121,11 @@ export const SECTIONS: Record<SectionId, Section> = {
       { label: "Ludzie i obietnice", href: "/wolny/ludzie" },
       { label: "Dane i korekty", href: "/wolny/dane" },
     ],
-    badges: [
-      { label: "TRAFNOŚĆ PROGNOZ: 78% W PASMIE", tone: "emerald" },
-      { label: "KOREKT W TYM ROKU: 19", tone: "neutral" },
-      { label: "BEZ KONTA · BEZ PAYWALLA", tone: "accent" },
-    ],
+    // Two badges removed rather than restated: forecasting is not implemented — the
+    // inference service answers 501 to `/v1/forecast` on purpose, because a plausible
+    // number is not a measurement — and there is no register of corrections to count.
+    // A statistic in the navigation is the hardest kind to notice has gone stale.
+    badges: [{ label: "BEZ KONTA · BEZ PAYWALLA", tone: "accent" }],
   },
 
   proTier: {

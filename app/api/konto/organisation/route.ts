@@ -12,7 +12,7 @@
  * screen that a backend change could silently falsify.
  */
 import { BackendError, readFromBackend, type Read } from "@/lib/server/backend";
-import { jsonForScreen, signedOutOr } from "@/lib/server/respond";
+import { jsonForScreen, readableFailure } from "@/lib/server/respond";
 import { pluralPl } from "@/lib/format";
 import type {
   ActivityEntry,
@@ -109,7 +109,7 @@ export async function GET(request: Request) {
       [memberships, workspace, members, audit, invitations].filter((read) => read !== null),
     );
   } catch (cause) {
-    return signedOutOr(cause);
+    return readableFailure(cause);
   }
 }
 

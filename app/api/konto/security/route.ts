@@ -9,7 +9,7 @@
  * bought to prevent.
  */
 import { readFromBackend } from "@/lib/server/backend";
-import { jsonForScreen, signedOutOr } from "@/lib/server/respond";
+import { jsonForScreen, readableFailure } from "@/lib/server/respond";
 import { pluralPl } from "@/lib/format";
 import type { ApiKey, ChipEntry, ComplianceBlock, Security, Tone } from "@/lib/data/types";
 
@@ -71,7 +71,7 @@ export async function GET() {
 
     return jsonForScreen(security, [keys, exports, factor, audit]);
   } catch (cause) {
-    return signedOutOr(cause);
+    return readableFailure(cause);
   }
 }
 
@@ -90,6 +90,7 @@ function describeKey(key: Key): ApiKey {
   const state = keyState(key);
 
   return {
+    id: key.id,
     name: key.name,
     prefix: `…${key.id.slice(-8)} · od ${dayLabel(key.createdAt)}`,
     scopes: key.scopes.join(", "),

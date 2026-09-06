@@ -13,7 +13,7 @@
  * prevent somebody asking.
  */
 import { BackendError, readFromBackend, type Read } from "@/lib/server/backend";
-import { jsonForScreen, signedOutOr } from "@/lib/server/respond";
+import { jsonForScreen, readableFailure } from "@/lib/server/respond";
 import { pluralPl } from "@/lib/format";
 import type { InterestProfile, Mute, WatchedGroup } from "@/lib/data/types";
 
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
 
     return jsonForScreen(profile, preview ? [owned, preview] : [owned]);
   } catch (cause) {
-    return signedOutOr(cause);
+    return readableFailure(cause);
   }
 }
 

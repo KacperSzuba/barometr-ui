@@ -9,17 +9,22 @@ import { DataRow, DataTable } from "@/components/ui/DataTable";
 import { Chip } from "@/components/ui/Chip";
 import { FieldRow } from "@/components/ui/FieldRow";
 import { CONSOLE_PADDING_TIGHT } from "@/components/ui/layout";
+import { ScreenState } from "@/components/ui/ScreenState";
+import { Note } from "@/components/ui/Note";
+import { useCommand } from "@/hooks/useCommand";
+import { setAlertRuleEnabled } from "@/lib/data/commands";
 import { pluralPl } from "@/lib/format";
 
 const RULE_GRID = "minmax(200px,1.3fr) minmax(240px,1.7fr) 110px 120px minmax(140px,1fr) 90px";
 
 export default function AlertsPage() {
   const [selected, setSelected] = useState(1);
-  const { data } = useAlerts();
-  if (!data) return null;
+  const alerts = useAlerts();
+  const { run, pending, error } = useCommand(alerts.refetch);
+  if (!alerts.data) return <ScreenState resource={alerts} />;
 
   const { columns, rules, fields, sentence, preview, channels, activity, previewNote, quietHours } =
-    data;
+    alerts.data;
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
@@ -53,12 +58,32 @@ export default function AlertsPage() {
             <div className="px-3 py-[11px] text-[11.5px] leading-[1.45] text-ink/70">
               {rule.channels}
             </div>
+            {/* The whole rule goes back, not just the switch: the backend states a
+                rule whole, so a change carrying only `enabled` would widen one that
+                somebody had narrowed to two stages. */}
             <div className="px-3 py-[11px]">
-              <Chip tone={rule.tone}>{rule.state}</Chip>
+              <button
+                type="button"
+                disabled={pending !== null}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  run(rule.id, () =>
+                    setAlertRuleEnabled(rule.id, {
+                      ...rule.settings,
+                      enabled: !rule.settings.enabled,
+                    }),
+                  );
+                }}
+                className="cursor-pointer disabled:opacity-40"
+              >
+                <Chip tone={rule.tone}>{pending === rule.id ? "…" : rule.state}</Chip>
+              </button>
             </div>
           </DataRow>
         ))}
       </DataTable>
+
+      {error && <Note className="mb-3 text-[10.5px] text-accent-soft">{error}</Note>}
 
       <div className="mb-6 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6">
         {/* Not "EDYTOR REGUŁY · NIEZAPISANE ZMIANY": nothing on this screen writes yet, and

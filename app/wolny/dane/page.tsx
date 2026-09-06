@@ -12,7 +12,8 @@ export default function OpenDataPage() {
   const { data } = useOpenData();
   if (!data) return null;
 
-  const { exports, embedCode, widgetKinds, corrections, publicPromises } = data;
+  const { terms, exports, embedCode, widgetKinds, corrections, correctionsNote, publicPromises } =
+    data;
 
   return (
     <div className={CONSOLE_PADDING}>
@@ -20,13 +21,9 @@ export default function OpenDataPage() {
         className="mb-5"
         kicker="OTWARTE DANE I ROZLICZALNOŚĆ"
         title="Weź nasze dane i sprawdź nas"
-        aside={
-          <>
-            licencja: CC BY 4.0 · atrybucja wymagana
-            <br />
-            limit darmowy: 1 000 zapytań / mies.
-          </>
-        }
+        aside={terms.map((line) => (
+          <div key={line}>{line}</div>
+        ))}
       />
 
       <HairlineList columns="repeat(auto-fit,minmax(250px,1fr))" className="mb-[26px]">
@@ -49,10 +46,11 @@ export default function OpenDataPage() {
 
       <div className="mb-[26px] grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-[26px]">
         <div>
-          <SectionRule title="Widget do wklejenia" aside="DLA REDAKCJI I BLOGÓW" />
+          <SectionRule title="Zapytanie do wklejenia" aside="DZIAŁA BEZ KONTA" />
           <pre className="m-0 overflow-x-auto rounded-[14px] border border-white/[.13] bg-white/[.05] px-[15px] py-3.5 text-[10.5px] leading-[1.8] whitespace-pre-line text-ink">
             {embedCode}
           </pre>
+          {/* Empty while no widget exists; the box above holds a request that runs. */}
           <div className="mt-2.5 flex flex-wrap gap-2">
             {widgetKinds.map((kind) => (
               <span
@@ -64,13 +62,16 @@ export default function OpenDataPage() {
             ))}
           </div>
           <Note className="mt-[11px]">
-            Widget nie zbiera danych czytelnika, nie ustawia ciasteczek i nie wymaga zgody.
-            Renderuje się serwerowo.
+            Zapytanie jest publiczne i nie wymaga klucza. Limit i atrybucja są w nagłówkach
+            odpowiedzi — atrybucję trzeba pokazać przy publikacji.
           </Note>
         </div>
 
         <div>
-          <SectionRule title="Rejestr korekt i błędów" aside="19 W 2026 R." />
+          <SectionRule
+            title="Rejestr korekt i błędów"
+            aside={corrections.length === 0 ? "NIE ISTNIEJE" : `${corrections.length} WPISÓW`}
+          />
           <HairlineList>
             {corrections.map((correction) => (
               <HairlineItem
@@ -90,10 +91,9 @@ export default function OpenDataPage() {
               </HairlineItem>
             ))}
           </HairlineList>
-          <Note className="mt-[9px]">
-            Każda korekta zostaje w rejestrze na stałe. Nie usuwamy wpisów, nie edytujemy historii —
-            poprawiamy i opisujemy.
-          </Note>
+          {/* The promise the mock made — "każda korekta zostaje na stałe" — describes a
+              register that does not exist. What the screen can honestly say is why. */}
+          <Note className="mt-[9px]">{correctionsNote}</Note>
         </div>
       </div>
 

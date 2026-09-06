@@ -276,6 +276,10 @@ export interface Correction {
 }
 
 export interface OpenData {
+  /** Licence, attribution and the rate actually being enforced — read, not written down. */
+  terms: string[];
+  /** Why the corrections list is empty, when it is. */
+  correctionsNote: string;
   exports: ExportChannel[];
   embedCode: string;
   widgetKinds: string[];
@@ -327,9 +331,25 @@ export interface Impact {
 
 /* ——— Pro · alerts and rules ——————————————————————————————————————————— */
 
+/**
+ * A rule as the engine holds it, beside the sentences the screen shows.
+ *
+ * Carried on every row because the backend states a rule whole rather than patching it:
+ * a change that sent only `enabled` would reset what the rule watches to "every stage,
+ * normal urgency, no floor" and silently widen one somebody had narrowed on purpose.
+ */
+export interface AlertRuleSettings {
+  enabled: boolean;
+  stages: string[];
+  urgency: string;
+  minimumSignificance: number;
+}
+
 export interface AlertRule {
   /** Two rules can watch the same profile, so the name cannot key the row. */
   id: string;
+  /** What a change has to send back. See [AlertRuleSettings]. */
+  settings: AlertRuleSettings;
   name: string;
   scope: string;
   condition: string;
@@ -1010,6 +1030,8 @@ export interface ComplianceBlock {
 }
 
 export interface ApiKey {
+  /** What a revocation names. Not shown — the row shows its tail beside the name. */
+  id: string;
   name: string;
   prefix: string;
   scopes: string;

@@ -91,9 +91,9 @@ async function get<T>(path: string, params?: Record<string, string>): Promise<T>
 
   // A refusal the reader can act on carries its own sentence; anything else gets the
   // status, which is all a reader could do anything with.
-  if (response.status === 403) {
+  if (response.status === 403 || response.status === 503) {
     const refusal = await response.json().catch(() => null);
-    throw new Error(refusal?.error ?? `Barometr API 403 przy ${path}`);
+    throw new Error(refusal?.error ?? `Barometr API ${response.status} przy ${path}`);
   }
 
   if (!response.ok) {
