@@ -13,6 +13,8 @@ const no: PlanCell = { kind: "no" };
 const text = (value: string): PlanCell => ({ kind: "text", text: value });
 
 export const login: Login = {
+  email: "p.kaczmarek@enerpol.example",
+
   authMethods: [
     {
       name: "Magic link na e-mail",
@@ -87,6 +89,7 @@ export const login: Login = {
 
   sessions: [
     {
+      id: "s-macbook",
       device: "MacBook Pro · Chrome 141",
       meta: "Katowice · 89.64.x.x · passkey",
       when: "ta sesja",
@@ -94,6 +97,7 @@ export const login: Login = {
       isHighlighted: true,
     },
     {
+      id: "s-iphone",
       device: "iPhone 16 · aplikacja",
       meta: "Katowice · sieć komórkowa · Face ID",
       when: "2 h temu",
@@ -101,6 +105,7 @@ export const login: Login = {
       isHighlighted: false,
     },
     {
+      id: "s-windows",
       device: "Windows 11 · Edge",
       meta: "Warszawa · 194.29.x.x · SSO Microsoft",
       when: "wczoraj 17:22",
@@ -108,6 +113,7 @@ export const login: Login = {
       isHighlighted: false,
     },
     {
+      id: "s-unknown",
       device: "Nieznane urządzenie · Firefox",
       meta: "Gdańsk · 5.173.x.x · magic link",
       when: "24 VII, 03:14",
@@ -119,30 +125,35 @@ export const login: Login = {
 
   history: [
     {
+      id: "e1",
       when: "29 VII 08:41",
       what: "Logowanie passkey — MacBook Pro, Katowice",
       tag: "OK",
       tone: "emerald",
     },
     {
+      id: "e2",
       when: "28 VII 17:22",
       what: "Logowanie SSO Microsoft — Windows, Warszawa",
       tag: "OK",
       tone: "emerald",
     },
     {
+      id: "e3",
       when: "24 VII 03:14",
       what: "Magic link z nowego urządzenia — Gdańsk, Firefox",
       tag: "ALERT",
       tone: "accent",
     },
     {
+      id: "e4",
       when: "24 VII 03:15",
       what: "Alert o nowym urządzeniu wysłany na e-mail i push",
       tag: "WYSŁANY",
       tone: "amber",
     },
     {
+      id: "e5",
       when: "21 VII 09:02",
       what: "Zmiana ustawień powiadomień przez użytkownika",
       tag: "ZMIANA",

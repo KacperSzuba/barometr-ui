@@ -49,13 +49,45 @@ import type {
   VerificationDesk,
 } from "./types";
 
-const BASE = process.env.NEXT_PUBLIC_BAROMETR_API ?? "";
+/**
+ * This application's own route handlers, never the backend directly.
+ *
+ * The backend has CORS switched off and expects to be reached server-to-server, which is
+ * what lets the access token live in an `HttpOnly` cookie: a script on this page cannot
+ * read it, so a cross-site script cannot steal it. A base URL pointing at port 8080 would
+ * undo both decisions at once.
+ */
+const BASE = "/api";
+
+/**
+ * Never settles, and that is the answer during server rendering.
+ *
+ * Every page here is a client component, so React renders it once on the server before
+ * the browser takes over — and a relative URL has no origin to resolve against there.
+ * Returning a promise that stays pending puts the component in exactly the state it is
+ * designed for: `if (!data) return null`, then the real read on hydration. Fetching an
+ * absolute URL back into this same process instead would be a round trip through the
+ * network to reach code already running here.
+ */
+const pending = <T>(): Promise<T> => new Promise<T>(() => {});
 
 async function get<T>(path: string, params?: Record<string, string>): Promise<T> {
+  if (typeof window === "undefined") return pending<T>();
+
   const query = params ? `?${new URLSearchParams(params)}` : "";
   const response = await fetch(`${BASE}${path}${query}`, {
     headers: { accept: "application/json" },
+    // The cookies are on this origin; without this the handler on the other side sees an
+    // anonymous request and answers 401 to a reader who is signed in.
+    credentials: "same-origin",
   });
+
+  if (response.status === 401) {
+    // The session is gone rather than merely stale — the server layer already tried to
+    // renew it. Sending the reader to the form beats a screen that stays empty.
+    window.location.assign(`/logowanie?cel=${encodeURIComponent(window.location.pathname)}`);
+    throw new Error("Sesja wygasła");
+  }
 
   if (!response.ok) {
     throw new Error(`Barometr API ${response.status} przy ${path}`);

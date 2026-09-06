@@ -12,22 +12,16 @@ export default function LoginPage() {
   const { data } = useLogin();
   if (!data) return null;
 
-  const { authMethods, operations, sessions, history } = data;
+  const { email, authMethods, operations, sessions, history } = data;
 
   return (
     <div className={CONSOLE_PADDING_TIGHT}>
       <PageHeader
         className="mb-5"
         titleSize="text-[31px]"
-        kicker="KONTO · P. KACZMAREK · WŁAŚCICIEL"
+        kicker="KONTO · LOGOWANIE I SESJE"
         title="Jak wchodzisz i czym się potwierdzasz"
-        aside={
-          <>
-            p.kaczmarek@enerpol.example
-            <br />
-            ostatnie logowanie: 29 VII, 08:41 · Katowice
-          </>
-        }
+        aside={email}
       />
 
       <div className="grid grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] gap-6">
@@ -84,7 +78,7 @@ export default function LoginPage() {
           <HairlineList>
             {sessions.map((session) => (
               <HairlineItem
-                key={session.device}
+                key={session.id}
                 className={cx(
                   "grid grid-cols-[minmax(0,1fr)_110px_86px] items-center gap-[11px] px-[13px] py-2.5",
                   session.isAlert && "bg-white/[.065]",
@@ -114,7 +108,7 @@ export default function LoginPage() {
             </HairlineItem>
             {history.map((event) => (
               <HairlineItem
-                key={event.when}
+                key={event.id}
                 className="grid grid-cols-[96px_minmax(0,1fr)_92px] items-center gap-2.5 px-[13px] py-[9px]"
               >
                 <div className="text-[9.5px] text-ink/50">{event.when}</div>

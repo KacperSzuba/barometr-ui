@@ -814,6 +814,8 @@ export interface SettingRow {
 }
 
 export interface Session {
+  /** Identity, not decoration: it keys the list and names the session an action ends. */
+  id: string;
   device: string;
   meta: string;
   when: string;
@@ -825,6 +827,8 @@ export interface Session {
 }
 
 export interface LoginEvent {
+  /** Two events can share a minute, so the label they are shown with cannot key them. */
+  id: string;
   when: string;
   what: string;
   tag: string;
@@ -839,6 +843,8 @@ export interface AccountOperation {
 }
 
 export interface Login {
+  /** Whose account this is. The screen said one address and listed another's sessions. */
+  email: string;
   authMethods: SettingRow[];
   operations: AccountOperation[];
   sessions: Session[];

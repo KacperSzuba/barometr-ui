@@ -124,10 +124,14 @@ export interface BarometrSource {
 }
 
 /**
- * The implementation swap point — the only place in the codebase that knows
- * which source is in play. Setting `NEXT_PUBLIC_BAROMETR_API` switches the whole
- * application over to the real API.
+ * The implementation swap point — the only place in the codebase that knows which source
+ * is in play. Setting `BAROMETR_API_URL` switches the whole application over to the real
+ * API, reached through this application's own route handlers.
+ *
+ * The flag is derived from `BAROMETR_API_URL` in `next.config.ts` and inlined at build
+ * time — a flag rather than the address itself, and the difference is not cosmetic. This
+ * line runs in the browser, and a browser that knows where the backend is, is a browser
+ * that will eventually call it directly; then the token has to live somewhere a script
+ * can read it, and the HttpOnly cookie was for nothing.
  */
-export const source: BarometrSource = process.env.NEXT_PUBLIC_BAROMETR_API
-  ? httpSource
-  : mockSource;
+export const source: BarometrSource = process.env.BAROMETR_LIVE ? httpSource : mockSource;
